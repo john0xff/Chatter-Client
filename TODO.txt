@@ -1,1 +1,4 @@
 
+close frame when exit command occured
+
+fix exception when streams close

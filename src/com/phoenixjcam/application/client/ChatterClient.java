@@ -4,85 +4,157 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
-public class ChatterClient extends JFrame {
+public class ChatterClient extends JFrame
+{
 
-    private static final long serialVersionUID = 1L;
-    private final int width = 640;
-    private final int height = 480;
+	private static final long serialVersionUID = 1L;
+	private final int width = 640;
+	private final int height = 480;
 
-    private String serverIP;
-    private Socket connectionSocket;
-    private int port;
+	// connection
+	private String serverIP;
+	private int port;
+	private Socket connectionSocket;
 
-    private JScrollPane scPane;
-    private JTextArea txtArea;
+	// streams
+	private ObjectOutputStream output;
+	private ObjectInputStream input;
 
-    public ChatterClient(String serverIP, int port) {
-	super("Chatter Client");
+	// components
+	private JScrollPane scrollPane;
+	private JTextArea chatArea;
+	private JTextField userText;
 
-	this.serverIP = serverIP;
-	this.port = port;
+	private String message;
+	private final static String NEWLINE = "\n";
 
-	scPane = new JScrollPane(getTxtArea());
-	add(scPane, BorderLayout.CENTER);
+	public ChatterClient(String serverIP, int port)
+	{
+		super("Chatter Client");
 
-	frameSettings();
-	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	setVisible(true);
-    }
+		this.serverIP = serverIP;
+		this.port = port;
 
-    private void frameSettings() {
-	setSize(width, height);
-	Point centerPoint = GraphicsEnvironment.getLocalGraphicsEnvironment()
-		.getCenterPoint();
-	setLocation(900, (centerPoint.y) - (height / 2));
-    }
+		scrollPane = new JScrollPane(getChatArea());
+		add(scrollPane, BorderLayout.CENTER);
 
-    private JTextArea getTxtArea() {
-	txtArea = new JTextArea();
-	txtArea.setFont(new Font("Arial", 0, 20));
-	return txtArea;
-    }
+		add(getUserText(), BorderLayout.NORTH);
 
-    public void runClient() {
-
-	txtArea.setText("Attempting connection");
-
-	try {
-	    InetAddress address = InetAddress.getByName(serverIP);
-	    connectionSocket = new Socket(address, port);
-	} catch (IOException e) {
-	    e.printStackTrace();
+		frameSettings();
 	}
 
-	String hostName = connectionSocket.getInetAddress().getHostName();
-	txtArea.setText("connected to " + hostName + "\n");
+	private void frameSettings()
+	{
+		setSize(width, height);
+		Point centerPoint = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
+		setLocation(900, (centerPoint.y) - (height / 2));
 
-	byte[] b = new byte[10];
-
-	for (int i = 0; i < b.length; i++) {
-	    try {
-		connectionSocket.getInputStream().read(b);
-		txtArea.append("byte read " + b[i] + "\n");
-	    } catch (IOException e) {
-		e.printStackTrace();
-	    }
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setVisible(true);
 	}
-    }
 
-    public static void main(String[] args) {
+	private JTextArea getChatArea()
+	{
+		chatArea = new JTextArea();
+		chatArea.setFont(new Font("Arial", 0, 20));
+		return chatArea;
+	}
 
-	int port = 9002;
-	String serverIP = "127.0.0.1";
+	/** send client text to server and append client text to client chat area */
+	private JTextField getUserText()
+	{
+		userText = new JTextField();
+		userText.setFont(new Font("Arial", 0, 20));
 
-	new ChatterClient(serverIP, port).runClient();
-    }
+		userText.addActionListener(new ActionListener()
+		{
+
+			@Override
+			public void actionPerformed(ActionEvent event)
+			{
+				String serverMessage = event.getActionCommand();
+
+				try
+				{
+					// send client text to server side
+					output.writeObject(NEWLINE + "CLIENT -  " + serverMessage);
+					output.flush();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+
+				// append client text to area
+				chatArea.append(NEWLINE + "CLIENT - " + serverMessage);
+
+				userText.setText("");
+			}
+		});
+
+		return userText;
+	}
+
+	public void runClient()
+	{
+
+		chatArea.append("Attempting connection" + NEWLINE);
+
+		try
+		{
+			// InetAddress address = InetAddress.getByName(serverIP);
+			connectionSocket = new Socket(serverIP, port);
+	
+			chatArea.append("connected to " + serverIP + NEWLINE);
+
+			output = new ObjectOutputStream(connectionSocket.getOutputStream());
+			output.flush();
+			input = new ObjectInputStream(connectionSocket.getInputStream());
+
+			do
+			{
+
+				message = (String) input.readObject();
+
+				chatArea.append(NEWLINE + "SERVER" + message);
+
+			}
+			while (!message.equals("SERVER - EXIT"));
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		catch (ClassNotFoundException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		String hostName = connectionSocket.getInetAddress().getHostName();
+		chatArea.setText("connected to " + hostName + NEWLINE);
+
+	}
+
+	public static void main(String[] args)
+	{
+		String serverIP = "127.0.0.1";
+		int port = 9002;
+
+		ChatterClient client = new ChatterClient(serverIP, port);
+		client.runClient();
+	}
 }

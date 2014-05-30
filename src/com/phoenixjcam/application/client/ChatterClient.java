@@ -130,7 +130,7 @@ public class ChatterClient extends JFrame
 			{
 				message = (String) input.readObject();
 
-				chatArea.append(NEWLINE + "SERVER" + message);
+				chatArea.append(message);
 			}
 			while (!message.equals(EXITCMD));
 

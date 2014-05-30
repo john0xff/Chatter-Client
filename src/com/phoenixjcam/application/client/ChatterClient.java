@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -70,6 +71,9 @@ public class ChatterClient extends JFrame {
 	Point centerPoint = GraphicsEnvironment.getLocalGraphicsEnvironment()
 		.getCenterPoint();
 	setLocation(900, (centerPoint.y) - (height / 2));
+	
+	ImageIcon img = new ImageIcon(ChatterClient.class.getResource("res/icoB.png"));
+	setIconImage(img.getImage());
 
 	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	setVisible(true);

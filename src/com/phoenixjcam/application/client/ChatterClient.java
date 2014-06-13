@@ -22,7 +22,7 @@ import javax.swing.JTextField;
 /**
  * 
  * @author Bart Bien
- *
+ * 
  */
 public class ChatterClient extends JFrame {
 
@@ -76,8 +76,9 @@ public class ChatterClient extends JFrame {
 	Point centerPoint = GraphicsEnvironment.getLocalGraphicsEnvironment()
 		.getCenterPoint();
 	setLocation(900, (centerPoint.y) - (height / 2));
-	
-	ImageIcon img = new ImageIcon(ChatterClient.class.getResource("res/icoB.png"));
+
+	ImageIcon img = new ImageIcon(
+		ChatterClient.class.getResource("res/icoB.png"));
 	setIconImage(img.getImage());
 
 	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -144,14 +145,15 @@ public class ChatterClient extends JFrame {
 		chatArea.append(message);
 	    } while (!message.equals(EXITCMD));
 
-	    closeStreams();
-	    closeSocket();
 	    // ? dispose();
 	} catch (IOException e) {
 	    e.printStackTrace();
 	} catch (ClassNotFoundException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
+	} finally {
+	    closeStreams();
+	    closeSocket();
 	}
 
 	String hostName = connectionSocket.getInetAddress().getHostName();

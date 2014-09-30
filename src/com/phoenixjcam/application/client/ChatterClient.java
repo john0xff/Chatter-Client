@@ -6,6 +6,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -27,8 +28,7 @@ import javax.swing.JTextField;
  */
 public class ChatterClient extends JFrame
 {
-
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 5797811107125726563L;
 	private final int width = 640;
 	private final int height = 480;
 
@@ -80,6 +80,7 @@ public class ChatterClient extends JFrame
 		Point centerPoint = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
 		setLocation(900, (centerPoint.y) - (height / 2));
 
+		//ImageIO.read
 		ImageIcon img = new ImageIcon(ChatterClient.class.getResource("res/icoB.png"));
 		setIconImage(img.getImage());
 
@@ -102,7 +103,6 @@ public class ChatterClient extends JFrame
 
 		userText.addActionListener(new ActionListener()
 		{
-
 			@Override
 			public void actionPerformed(ActionEvent event)
 			{
@@ -145,7 +145,7 @@ public class ChatterClient extends JFrame
 			chatArea.append("connected to " + serverIP + NEWLINE);
 
 			output = new ObjectOutputStream(connectionSocket.getOutputStream());
-			output.flush();
+			//output.flush();
 			input = new ObjectInputStream(connectionSocket.getInputStream());
 
 			do
@@ -158,11 +158,7 @@ public class ChatterClient extends JFrame
 
 			// ? dispose();
 		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		catch (ClassNotFoundException e)
+		catch (IOException | ClassNotFoundException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -173,35 +169,32 @@ public class ChatterClient extends JFrame
 			closeSocket();
 		}
 
-		String hostName = connectionSocket.getInetAddress().getHostName();
-		chatArea.setText("connected to " + hostName + NEWLINE);
+//		String hostName = connectionSocket.getInetAddress().getHostName();
+//		chatArea.setText("connected to " + hostName + NEWLINE);
 	}
-
-	private void closeStreams()
+	
+	private void closeObject(Closeable object)
 	{
 		try
 		{
-			output.close();
-			input.close();
+			object.close();
 		}
 		catch (IOException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
 
+	private void closeStreams()
+	{
+		closeObject(output);
+		closeObject(input);
 	}
 
 	private void closeSocket()
 	{
-		try
-		{
-			connectionSocket.close();
-		}
-		catch (IOException ioException)
-		{
-			ioException.printStackTrace();
-		}
+		closeObject(connectionSocket);
 	}
 
 	public static void main(String[] args)
@@ -211,4 +204,6 @@ public class ChatterClient extends JFrame
 
 		new ChatterClient(serverIP, port);
 	}
+	
+
 }

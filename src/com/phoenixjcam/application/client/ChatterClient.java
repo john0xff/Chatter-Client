@@ -21,7 +21,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /**
- * branche v2.0-multiThread
  * 
  * @author Bart Bien
  * 

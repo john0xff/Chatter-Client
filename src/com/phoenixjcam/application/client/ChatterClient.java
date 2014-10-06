@@ -21,7 +21,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /**
- * branche v2.0-multiThread
+ * bugfix for objects closing
  * 
  * @author Bart Bien
  * 

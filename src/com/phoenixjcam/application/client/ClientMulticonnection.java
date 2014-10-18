@@ -1,6 +1,5 @@
 package com.phoenixjcam.application.client;
 
-import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -9,12 +8,11 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import javax.swing.JFrame;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-
 public class ClientMulticonnection
 {
+	private final static String NEWLINE = "\n";
+	private final static String CLEAR = "";
+	private ClientGUI clientGUI;
 	private int port;
 	private String host;
 	private Socket clientSocket;
@@ -22,21 +20,14 @@ public class ClientMulticonnection
 	private ObjectOutputStream objectOutputStream;
 	private ObjectInputStream objectInputStream;
 
-	private JFrame frame;
-	private JTextField userText;
-	private JTextArea textArea;
-
 	public ClientMulticonnection(int port, String host)
 	{
+		clientGUI = new ClientGUI();
 		this.port = port;
 		this.host = host;
 
-		frame = new JFrame("Client");
-
-		userText = new JTextField();
-		userText.addActionListener(new ActionListener()
+		clientGUI.getUserText().addActionListener(new ActionListener()
 		{
-
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
@@ -44,33 +35,26 @@ public class ClientMulticonnection
 
 				try
 				{
-					objectOutputStream.writeObject(msg);
-					textArea.append("Client: " + msg + "\n");
+					String clientMsg = clientGUI.currentTime() + " Client: " + msg + NEWLINE;// prepare full msg from
+																								// client to display in
+																								// both
+					objectOutputStream.writeObject(clientMsg);
+					clientGUI.getTextArea().append(clientMsg);
+					clientGUI.getUserText().setText(CLEAR);
 				}
 				catch (IOException e1)
 				{
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
 		});
-		userText.setEnabled(false);
-		frame.add(userText, BorderLayout.NORTH);
-
-		textArea = new JTextArea();
-		textArea.setEnabled(false);
-		frame.add(textArea, BorderLayout.CENTER);
-
-		frame.setSize(600, 400);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
 
 		try
 		{
 			clientSocket = new Socket(host, port);
 			objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
 			objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
-			userText.setEnabled(true);
+			clientGUI.getUserText().setEnabled(true);
 
 			String msg = null;
 			do
@@ -78,7 +62,7 @@ public class ClientMulticonnection
 				try
 				{
 					msg = objectInputStream.readObject().toString();
-					textArea.append("Server: " + msg + "\n");
+					clientGUI.getTextArea().append(msg);
 				}
 				catch (ClassNotFoundException e1)
 				{
@@ -97,27 +81,34 @@ public class ClientMulticonnection
 		}
 		finally
 		{
-			try
-			{
-				clientSocket.shutdownOutput();
-				clientSocket.shutdownInput();
-			}
-			catch (IOException e1)
-			{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-
-			try
-			{
-				clientSocket.close();
-			}
-			catch (IOException e1)
-			{
-				e1.printStackTrace();
-			}
+			shutdownStreams();
+			closeSockets();
 		}
+	}
 
+	private void shutdownStreams()
+	{
+		try
+		{
+			clientSocket.shutdownOutput();
+			clientSocket.shutdownInput();
+		}
+		catch (IOException e1)
+		{
+			e1.printStackTrace();
+		}
+	}
+
+	private void closeSockets()
+	{
+		try
+		{
+			clientSocket.close();
+		}
+		catch (IOException e1)
+		{
+			e1.printStackTrace();
+		}
 	}
 
 	public static void main(String... args)

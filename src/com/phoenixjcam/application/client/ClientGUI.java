@@ -12,6 +12,8 @@ import javax.swing.JTextField;
 
 public class ClientGUI
 {
+	
+	
 	// gui components
 	private JFrame frame;
 	private JTextField userText;
@@ -31,7 +33,7 @@ public class ClientGUI
 		userText = new JTextField();
 		userText.setFont(new Font("Arial", 0, 20));
 
-		userText.setEnabled(false);
+		//userText.setEnabled(false);
 		frame.add(userText, BorderLayout.NORTH);
 
 		textArea = new JTextArea();

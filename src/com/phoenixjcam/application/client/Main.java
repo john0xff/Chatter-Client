@@ -1,4 +1,4 @@
-package clientSide;
+package com.phoenixjcam.application.client;
 
 public class Main
 {

@@ -1,4 +1,4 @@
-package com.phoenixjcam.application.client;
+package com.phoenixjcam.client;
 
 import java.awt.BorderLayout;
 import java.awt.Font;

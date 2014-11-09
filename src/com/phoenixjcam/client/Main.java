@@ -1,4 +1,4 @@
-package com.phoenixjcam.application.client;
+package com.phoenixjcam.client;
 
 public class Main
 {

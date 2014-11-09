@@ -9,11 +9,11 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.text.DefaultCaret;
 
 public class ClientGUI
 {
-	
-	
+
 	// gui components
 	private JFrame frame;
 	private JTextField userText;
@@ -33,12 +33,16 @@ public class ClientGUI
 		userText = new JTextField();
 		userText.setFont(new Font("Arial", 0, 20));
 
-		//userText.setEnabled(false);
+		// userText.setEnabled(false);
 		frame.add(userText, BorderLayout.NORTH);
 
 		textArea = new JTextArea();
 		textArea.setFont(new Font("Arial", 0, 20));
-		//textArea.setEnabled(false);
+
+		DefaultCaret caret = (DefaultCaret) textArea.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
+		// textArea.setEnabled(false);
 		scrollPane = new JScrollPane(textArea);
 		frame.add(scrollPane, BorderLayout.CENTER);
 
@@ -47,7 +51,7 @@ public class ClientGUI
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
-	
+
 	public String currentTime()
 	{
 		calendar = Calendar.getInstance();
